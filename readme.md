@@ -14,3 +14,8 @@ GRANT ALL PRIVILEGES on sakila.* TO 'ahkow'@'localhost' WITH GRANT OPTION;
  ```
 FLUSH PRIVILEGES;
 ```
+
+# To dump your database as a .sql file
+```
+mysqldump -u root [database name] > [file.sql]
+```
