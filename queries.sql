@@ -61,3 +61,70 @@ SELECT * FROM employees WHERE jobTitle = "Sales Rep" AND (officeCode=2 OR office
 -- find all customers from the country of USA and the state of NV
 -- and whose credit limit is more than 5000
 select * from customers WHERE country LIKE "USA" AND state="NV" AND creditLimit > 5000;
+
+-- display the name, email of all employees, and the city of their office
+SELECT  firstName, lastName, email, city, employees.officeCode FROM employees JOIN offices
+ ON employees.officeCode = offices.officeCode
+
+ -- for each customer, display the customerName and the first name, last name and email address of their sales rep
+select customerName, firstName, lastName, email
+from customers join employees
+on customers.salesRepEmployeeNumber = employees.employeeNumber
+
+-- display the details of all sales rep and the city that their office is in
+-- the "WHERE" clause operates on the JOINED TABLE
+SELECT  firstName, lastName, email, city, jobTitle, employees.officeCode
+ FROM employees JOIN offices
+    ON employees.officeCode = offices.officeCode
+ WHERE jobTitle LIKE "Sales Rep"
+
+ -- for every customer, display their sales rep's first name, last name, phone and extension
+select customerName, firstName, lastName, offices.phone, extension  from employees
+join offices
+  on employees.officeCode = offices.officeCode
+join customers
+  on employees.employeeNumber = customers.salesRepEmployeeNumber
+
+ -- for every customer, display their sales rep's first name, last name, phone and extension
+select customerName, firstName, lastName, offices.phone, extension  from employees
+join offices
+  on employees.officeCode = offices.officeCode
+join customers
+  on employees.employeeNumber = customers.salesRepEmployeeNumber
+where 
+
+-- ...and also for customers in USA
+select customerName, firstName, lastName, offices.phone, extension, customers.country  from employees
+join offices
+  on employees.officeCode = offices.officeCode
+join customers
+  on employees.employeeNumber = customers.salesRepEmployeeNumber
+where customers.country like "USA"
+
+-- in a left join, all rows from the left hand side of the join will show up in the results
+SELECT * FROM customers left join employees on customers.salesRepEmployeeNumber = employees.employeeNumber
+
+-- in a right join, all rows from the right hand side of the join will show up in the results
+SELECT * FROM customers right join employees on customers.salesRepEmployeeNumber = employees.employeeNumber
+
+-- date manipulation
+
+-- show the current date with:
+select curdate();
+
+-- show both current date and time
+select now();
+
+-- display all payments made after June 2003
+SELECT * FROM payments where paymentDate >= "2003-06-01";
+
+
+-- display all payments made in the year 2003
+SELECT * FROM payments where paymentDate >= "2003-01-01" AND paymentDate <= "2003-31-12";
+SELECT * FROM payments where paymentDate BETWEEN "2003-01-01" AND "2003-31-12";
+
+-- use the YEAR, MONTH and DAY functions to extract the respective components from a date column
+SELECT checkNumber, amount, YEAR(paymentDate), MONTH(paymentDate), DAY(paymentDate) from payments;
+
+-- display all payments made in the year 2003
+select * from payments where year(paymentDate) = "2003"
