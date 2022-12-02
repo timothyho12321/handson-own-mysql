@@ -1,3 +1,6 @@
+-- show all databases on your MySQL server
+show databases;
+
 -- create a new database
 -- create database <new database name>
 create database swimming_coach;
@@ -77,3 +80,35 @@ alter table students add column swimming_level int unsigned;
 
 -- modify an existing column
 alter table students modify column swimming_level tinyint unsigned not null default 0;
+
+-- create table <name of table>  (<column def>,<column def>,(colunm def)) engine = innodb;
+-- column def: <name of column> <data type>
+create table attendance (
+    attendance_id int unsigned not null primary key auto_increment,
+    session_id int unsigned not null,
+    student_id int unsigned not null
+) engine = innodb;
+
+-- rename a column
+-- alter table attendance change user_id student_id int unsigned not null;
+
+alter table attendance add constraint fk_attendance_session foreign key (session_id) references sessions(session_id);
+-- foreign key  ( student_id) reference attendance(student_id)
+
+
+alter table attendance add constraint fk_attendance_student foreign key (student_id) references students(student_id);
+
+-- engine = innodb enforces the constraints
+-- if we don't have the 'engine = innodb' we can still create the foregin keys BUT MySQL will not enforce
+create table payments (
+    payment_id int unsigned not null primary key auto_increment,
+    amount int unsigned not null default 0,
+    method varchar(100),
+    session_id int unsigned not null,
+    foreign key (session_id) references sessions(session_id),
+    student_id int unsigned not null,
+    foreign key (student_id) references students(student_id),
+    parent_id int unsigned not null,
+    foreign key (parent_id) references parents(parent_id)
+) engine = innodb;
+
