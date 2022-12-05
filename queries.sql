@@ -187,3 +187,4 @@ GROUP BY employeeNumber, firstName, lastName
 HAVING AVG(creditLimit) >= 80000
 ORDER BY average_credit_limit DESC
 LIMIT 3
+
