@@ -128,3 +128,62 @@ SELECT checkNumber, amount, YEAR(paymentDate), MONTH(paymentDate), DAY(paymentDa
 
 -- display all payments made in the year 2003
 select * from payments where year(paymentDate) = "2003"
+
+-- Aggregate functions
+
+-- Know how many employees we have in the company
+SELECT COUNT(*) FROM employees;
+
+-- Find how many quantity of a certain product 
+-- is ordered in year 2003
+select SUM(quantityOrdered) from orderdetails
+JOIN orders ON orderdetails.orderNumber = orders.orderNumber
+WHERE productCode = "S18_2248"  
+AND YEAR(orderDate) = "2003"
+
+-- alternatively
+select SUM(quantityOrdered) from orderdetails
+JOIN orders ON orderdetails.orderNumber = orders.orderNumber
+WHERE productCode = "S18_2248"  
+AND orderDate BETWEEN "2003-01-01" AND "2003-12-31"
+
+-- find the average credit limit of all customers
+SELECT AVG(creditLimit) FROM customers;
+
+-- show the average credit limit per country
+SELECT country, AVG(creditLimit) FROM customers GROUP BY country;
+
+-- count how many customers there are in each country
+SELECT country, COUNT(*) FROM customers GROUP BY country;
+
+-- count how many customers there are in each country and their average credit limit
+
+-- IMPORTANT
+-- 1. You must select the column what you group by
+-- 2. Your other columns must be aggregate functions
+-- eg. SUM, COUNT, AVG, MIN, MAX etc.
+
+-- For each country, count how many customers there are 
+-- with credit limit greater than 10000
+SELECT country, COUNT(*) AS "customer_count" FROM customers
+WHERE creditLimit > 10000
+GROUP BY country
+HAVING COUNT(*) >= 5
+
+-- For each sales rep, find the average credit limit of their customers
+-- Show the first name, last name of the sales rep, and the average credit limit for all their customers
+SELECT employeeNumber, AVG(creditLimit) FROM employees JOIN customers
+ON employees.employeeNumber = customers.salesRepEmployeeNumber
+WHERE employees.jobTitle LIKE "Sales Rep"
+GROUP BY employeeNumber
+HAVING AVG(creditLimit) >= 80000
+
+-- ...to show first name and last name as well
+-- and show the top 3 (sorted in descending order)
+SELECT employeeNumber, firstName, lastName, AVG(creditLimit) AS "average_credit_limit" FROM employees JOIN customers
+ON employees.employeeNumber = customers.salesRepEmployeeNumber
+WHERE employees.jobTitle LIKE "Sales Rep"
+GROUP BY employeeNumber, firstName, lastName
+HAVING AVG(creditLimit) >= 80000
+ORDER BY average_credit_limit DESC
+LIMIT 3
