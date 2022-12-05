@@ -53,3 +53,17 @@ GROUP BY MONTH(orderdate)
 SELECT AVG(amount), customerName FROM customers JOIN payments
  ON customers.customerNumber = payments.customerNumber
  GROUP BY payments.customerNumber, customerName
+
+-- q12
+SELECT productlines.productLine, COUNT(*) FROM
+	productlines LEFT JOIN products
+	ON products.productLine = productlines.productLine
+GROUP BY productlines.productLine
+	
+-- q13
+SELECT customers.customerNumber, customerName, AVG(amount) FROM payments JOIN customers
+ ON payments.customerNumber = customers.customerNumber
+GROUP BY customers.customerNumber, customerName
+HAVING SUM(amount) >= 10000;
+
+-- q14
