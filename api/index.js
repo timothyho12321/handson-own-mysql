@@ -66,7 +66,14 @@ async function main() {
 
         if (req.query.name) {
             query += ` AND (FirstName LIKE "%${req.query.name}%" OR LastName LIKE "%${req.query.name}%")`;
+        }
 
+        if (req.query.min_date) {
+            query += ` AND HireDate >="${req.query.min_date}"` 
+        }
+
+        if (req.query.max_date) {
+            query += ` AND HireDate <="${req.query.max_date}"`;
         }
 
         const [results] = await connection.execute(query);
