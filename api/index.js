@@ -78,7 +78,94 @@ async function main() {
 
         const [results] = await connection.execute(query);
         res.json(results);
+    });
+
+    // when we create an endpoint for a RestFUL API,
+    // the URL is always a noun. The HTTP method (ie, the GET, POST, PATCH, PUT, DESTROY)
+    // reflects the intent of the "verb"
+    // req.body.name will contain the name of the artist
+    app.post('/artists', async function(req,res){
+        // 1. create a mock query and try it in the database
+        // INSERT INTO Artist (Name) VALUES ("Taylor Swift");
+        const query = `INSERT INTO Artist (Name) VALUES ("${req.body.name}")`;
+        const [results] = await connection.execute(query);
+        res.json({
+            'insertId': results.insertId
+        });
+
     })
+
+    // insert a new album
+    // we assume:
+    // req.body.title will contain the title of the album
+    // req.body.artist_id will contain the ID of the artist that produces the album
+    app.post("/albums", async function(req,res){
+        // check if the artist_id
+        // try to see if the artist with the given artist_id exists or not
+        const [artists] = await connection.execute(
+            `SELECT * FROM Artist WHERE ArtistId=${req.body.artist_id}`
+        )
+
+        // take note: connection.execute will always return an array of results
+        // even if there is only one valid row
+        if (artists.length > 0) {
+            // continune to insert in the new album
+            // INSERT INTO Album (Title, ArtistId) VALUES ("Jiangnan", 277 ); 
+            const query = `INSERT INTO Album (Title, ArtistId) VALUES ("${req.body.title}", ${req.body.artist_id} )`;
+            const [results] = await connection.execute(query);
+            res.json({
+                'insertId': results.insertId
+            })
+        } else {
+            // if the artists array has length of 0, it means that the artist_id is invalid
+            // (i.e the artist with the artist_id is not found)
+            res.status(400);
+            res.json({
+                'error':"The artist with the given artist_id is not found"
+            })
+
+        }
+    })
+
+    // Create a new playlist
+    // req.body.name : contain the name of the playlist
+    // req.body.tracks: an array of track IDs that will be added to the playlist
+    app.post('/playlists', async function(req,res){
+        // SELECT * FROM Track WHERE TrackId IN (1,2,3,4)
+        const [tracks] =  await connection.execute(
+            `SELECT * FROM Track WHERE TrackId IN (${req.body.tracks.toString()})`
+        );
+        
+        if (tracks.length == req.body.tracks.length) {
+            // 1. create the playlist
+            // INSERT INTO Playlist (Name) VALUES ("Test Playlist")
+            const query = `INSERT INTO Playlist (Name) VALUES ("${req.body.name}")`;
+            const [results] = await connection.execute(query);
+            const newPlaylistID = results.insertId;
+            for (let t of req.body.tracks) {
+                const [results] = await connection.execute(
+                    `INSERT INTO PlaylistTrack (PlaylistId, TrackId) VALUES (${newPlaylistID}, ${t})`
+                );
+            
+          
+            }
+            res.json({
+                'playlist_id': newPlaylistID
+            })
+
+        } else {
+            // one or more of the given trackID is not found
+            res.status(400);
+            res.json({
+                'error':"One or more of the given Track ID does not exist"
+            })
+        }
+    });
+
+    app.put("/artist/:artist_id", async function(req,res){
+
+    })
+
 }
 main();
 
