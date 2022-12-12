@@ -211,7 +211,7 @@ async function main() {
             `select * from Album WHERE AlbumId = "${req.body.AlbumId}"`
         )
 
-        if (genre.length == 0) {
+        if (album.length == 0) {
             res.status(400);
             res.json({
                 "error": "Key in an existing album. not Found. "
@@ -271,7 +271,7 @@ async function main() {
             extractID = each.trackId
             arrayTrackIdSearch.push(extractID)
         }
-       
+
 
         // SELECT * from InvoiceLine 
         // WHERE TrackId IN (1,2,3)
@@ -288,7 +288,7 @@ WHERE TrackId IN (${arrayTrackIdSearch.toString()})`
             const [results] = await connection.execute(query)
             const newInvoiceId = results.insertId
 
-           
+
 
 
             for (let each of arrayTrackIdSearch) {
@@ -306,7 +306,7 @@ WHERE TrackId IN (${arrayTrackIdSearch.toString()})`
 
 
             }
-            
+
             res.json(results.insertId);
 
 
@@ -350,6 +350,125 @@ WHERE TrackId IN (${arrayTrackIdSearch.toString()})`
             })
         }
     });
+
+
+
+    //req.body.playListId is an array of id of playlist 
+    //req.body.GenreId is one id of the track genre
+    //req.body.MediaTypeId is one id of the track mediatype
+
+
+
+    app.put('/track/:track_id', async function (req, res) {
+
+        // check if the track exist to rename it in master table
+        const [track] = await connection.execute(
+            `select * from Track WHERE TrackId = "${req.params.track_id}"`
+        )
+
+        if (track.length == 0) {
+            res.status(400);
+            res.json({
+                "error": "No such track found"
+            })
+            return;
+        }
+
+        const [genre] = await connection.execute(
+            `select * from Genre WHERE GenreId = "${req.body.GenreId}"`
+        )
+
+        if (genre.length == 0) {
+            res.status(400);
+            res.json({
+                "error": "No such genre found"
+            })
+            return;
+        }
+
+
+        const [mediaType] = await connection.execute(
+            `select * from MediaType WHERE MediaTypeId = "${req.body.MediaTypeId}"`
+        )
+
+        if (mediaType.length == 0) {
+            res.status(400);
+            res.json({
+                "error": "Key in an existing Media Type. not Found. "
+            })
+            return;
+        }
+
+        // album is many to many another pivot table
+
+        // const [album] = await connection.execute(
+        //     `select * from Album WHERE AlbumId = "${req.body.AlbumId}"`
+        // )
+
+        // if (album.length == 0) {
+        //     res.status(400);
+        //     res.json({
+        //         "error": "Key in an existing album. not Found. "
+        //     })
+        //     return;
+        // }
+
+
+
+
+// update track with new name and playlist track with new association of track and playlist
+        // there is a valid params track id to rename to 
+        if (track.length > 0) {
+
+
+            // SELECT * from Playlist WHERE PlaylistId In (1,2,3)
+            const [playlist] = await connection.execute(
+                `SELECT * from Playlist WHERE PlaylistId In (${req.body.playListId.toString()})`
+
+            )
+
+            // UPDATE Track SET MediaTypeId = 1, Name = "Blueball" WHERE TrackId = 3510;
+            if (playlist.length == req.body.playListId.length) {
+                console.log("update started!")
+                const query = `
+UPDATE Track SET MediaTypeId = "${req.body.MediaTypeId}", Name = "${req.body.TrackName}"
+WHERE TrackId = "${req.params.track_id}";
+           `
+                // rename track to new name, no need to remember because id is fixed
+                await connection.execute(query);
+
+                // DELETE From PlaylistTrack WHERE PlaylistId in (3508,3509,3510);
+
+                await connection.execute(`
+DELETE From PlaylistTrack WHERE PlaylistId IN (${req.body.playListId});
+`
+                )
+
+                // INSERT INTO  PlaylistTrack (PlaylistId, TrackId) VALUES (1,3510);
+
+                for (let e of req.body.playListId) {
+                    const [results] = await connection.execute(
+                        `INSERT INTO  PlaylistTrack (PlaylistId, TrackId) VALUES (${e},${req.params.track_id});
+`
+
+                    )
+
+                    
+
+                }
+                res.json({"message":"success"});
+
+            }
+
+
+        }
+
+
+
+
+
+    })
+
 
 
 
