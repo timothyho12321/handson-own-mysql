@@ -439,6 +439,8 @@ WHERE TrackId = "${req.params.track_id}";
 
                 // DELETE From PlaylistTrack WHERE PlaylistId in (3508,3509,3510);
 
+
+                // ADDS BUT DOES NOT DELETE HERE 
                 await connection.execute(`
 DELETE From PlaylistTrack WHERE PlaylistId IN (${req.body.playListId});
 `
@@ -456,6 +458,7 @@ DELETE From PlaylistTrack WHERE PlaylistId IN (${req.body.playListId});
                     
 
                 }
+                console.log("Success update playlist Id in playlist table")
                 res.json({"message":"success"});
 
             }
