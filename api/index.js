@@ -426,6 +426,7 @@ WHERE TrackId IN (${arrayTrackIdSearch.toString()})`
                 `SELECT * from Playlist WHERE PlaylistId In (${req.body.playListId.toString()})`
 
             )
+            
 
             // UPDATE Track SET MediaTypeId = 1, Name = "Blueball" WHERE TrackId = 3510;
             if (playlist.length == req.body.playListId.length) {
@@ -441,10 +442,17 @@ WHERE TrackId = "${req.params.track_id}";
 
 
                 // ADDS BUT DOES NOT DELETE HERE 
-                await connection.execute(`
-DELETE From PlaylistTrack WHERE PlaylistId IN (${req.body.playListId});
-`
-                )
+//                 await connection.execute(`
+// DELETE From PlaylistTrack WHERE PlaylistId IN (${req.body.playListId});
+// `                )
+
+// DELETE From PlaylistTrack WHERE PlaylistId = (req.params.track_id);
+// DELETE From PlaylistTrack WHERE TrackId = 3510;
+
+
+await connection.execute(`
+DELETE From PlaylistTrack WHERE TrackId = "${(req.params.track_id)}";
+`                )
 
                 // INSERT INTO  PlaylistTrack (PlaylistId, TrackId) VALUES (1,3510);
 
